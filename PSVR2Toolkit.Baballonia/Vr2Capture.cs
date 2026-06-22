@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using OpenCvSharp;
 using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,6 +42,7 @@ public sealed class Vr2Capture : Capture
         try
         {
             _gazeImageApi.Initialize();
+            Logger.LogInformation("PSVR2 gaze image API initialized. Status={GazeStatus}.", GetGazeStatusForLog());
         }
         catch (Exception e)
         {
@@ -60,6 +63,9 @@ public sealed class Vr2Capture : Capture
 
     private async Task VideoCapture_UpdateLoop(CancellationToken ct)
     {
+        var nextInvalidFrameLog = Stopwatch.GetTimestamp();
+        var validFrameLogged = false;
+
         try
         {
             while (!ct.IsCancellationRequested)
@@ -74,9 +80,29 @@ public sealed class Vr2Capture : Capture
                     Marshal.Copy(_imageBuffer, IMAGE_HEADER_SIZE, mat.Data, IMAGE_DATA_SIZE);
                     SetRawMat(mat);
                     IsReady = true;
+
+                    if (!validFrameLogged)
+                    {
+                        validFrameLogged = true;
+                        Logger.LogInformation(
+                            "Received first PSVR2 gaze image frame. Status={GazeStatus}, size={Width}x{Height}, header={Header}.",
+                            GetGazeStatusForLog(),
+                            IMAGE_WIDTH,
+                            IMAGE_HEIGHT,
+                            FormatHeader(_imageBuffer));
+                    }
                 }
                 else
                 {
+                    if (Stopwatch.GetTimestamp() >= nextInvalidFrameLog)
+                    {
+                        Logger.LogWarning(
+                            "Waiting for PSVR2 gaze image frame. Status={GazeStatus}, header={Header}.",
+                            GetGazeStatusForLog(),
+                            FormatHeader(_imageBuffer));
+                        nextInvalidFrameLog = Stopwatch.GetTimestamp() + Stopwatch.Frequency;
+                    }
+
                     await Task.Delay(1, ct);
                 }
             }
@@ -116,5 +142,23 @@ public sealed class Vr2Capture : Capture
         _captureTask = null;
         IsReady = false;
         return true;
+    }
+
+    private int GetGazeStatusForLog()
+    {
+        try
+        {
+            return _gazeImageApi.GetGazeStatus();
+        }
+        catch (Exception e)
+        {
+            Logger.LogWarning(e, "Could not read PSVR2 gaze image API status.");
+            return -1;
+        }
+    }
+
+    private static string FormatHeader(byte[] buffer)
+    {
+        return string.Join(' ', buffer.AsSpan(0, 8).ToArray().Select(b => b.ToString("X2")));
     }
 }
