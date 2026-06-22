@@ -42,7 +42,7 @@ public sealed class Vr2Capture : Capture
         try
         {
             _gazeImageApi.Initialize();
-            Logger.LogInformation("PSVR2 gaze image API initialized. Status={GazeStatus}.", GetGazeStatusForLog());
+            Logger.LogInformation("PSVR2 gaze image API initialized.");
         }
         catch (Exception e)
         {
@@ -85,8 +85,7 @@ public sealed class Vr2Capture : Capture
                     {
                         validFrameLogged = true;
                         Logger.LogInformation(
-                            "Received first PSVR2 gaze image frame. Status={GazeStatus}, size={Width}x{Height}, header={Header}.",
-                            GetGazeStatusForLog(),
+                            "Received first PSVR2 gaze image frame. Size={Width}x{Height}, header={Header}.",
                             IMAGE_WIDTH,
                             IMAGE_HEIGHT,
                             FormatHeader(_imageBuffer));
@@ -97,8 +96,7 @@ public sealed class Vr2Capture : Capture
                     if (Stopwatch.GetTimestamp() >= nextInvalidFrameLog)
                     {
                         Logger.LogWarning(
-                            "Waiting for PSVR2 gaze image frame. Status={GazeStatus}, header={Header}.",
-                            GetGazeStatusForLog(),
+                            "Waiting for PSVR2 gaze image frame. Header={Header}.",
                             FormatHeader(_imageBuffer));
                         nextInvalidFrameLog = Stopwatch.GetTimestamp() + Stopwatch.Frequency;
                     }
@@ -142,19 +140,6 @@ public sealed class Vr2Capture : Capture
         _captureTask = null;
         IsReady = false;
         return true;
-    }
-
-    private int GetGazeStatusForLog()
-    {
-        try
-        {
-            return _gazeImageApi.GetGazeStatus();
-        }
-        catch (Exception e)
-        {
-            Logger.LogWarning(e, "Could not read PSVR2 gaze image API status.");
-            return -1;
-        }
     }
 
     private static string FormatHeader(byte[] buffer)

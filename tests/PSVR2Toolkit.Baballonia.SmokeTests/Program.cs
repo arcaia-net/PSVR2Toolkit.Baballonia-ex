@@ -129,11 +129,6 @@ internal sealed class FakeGazeImageApi(Action<byte[]> fillBuffer) : IGazeImageAp
     {
     }
 
-    public int GetGazeStatus()
-    {
-        return 0;
-    }
-
     public void GetGazeImage(byte[] imageBuffer)
     {
         fillBuffer(imageBuffer);

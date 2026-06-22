@@ -6,7 +6,6 @@ namespace PSVR2Toolkit.Baballonia;
 internal interface IGazeImageApi
 {
     void Initialize();
-    int GetGazeStatus();
     void GetGazeImage(byte[] imageBuffer);
 }
 
@@ -33,10 +32,6 @@ internal sealed class NativeGazeImageApi : IGazeImageApi
         CAPI.CAPI_GetGazeImage(imageBuffer);
     }
 
-    public int GetGazeStatus()
-    {
-        return CAPI.CAPI_GetGazeStatus();
-    }
 }
 
 internal static class CAPI
@@ -56,9 +51,4 @@ internal static class CAPI
     [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
     public static extern void CAPI_GetGazeImage(byte[] imageBuffer);
 
-    /// <summary>
-    /// Gets the current gaze image producer status.
-    /// </summary>
-    [DllImport(DllName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int CAPI_GetGazeStatus();
 }
