@@ -1,8 +1,39 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
+using System.Threading;
 
-namespace PSVR2Toolkit;
+namespace PSVR2Toolkit.Baballonia;
 
-internal class CAPI
+internal interface IGazeImageApi
+{
+    void Initialize();
+    void GetGazeImage(byte[] imageBuffer);
+}
+
+internal sealed class NativeGazeImageApi : IGazeImageApi
+{
+    public static NativeGazeImageApi Instance { get; } = new();
+
+    private int _initialized;
+
+    private NativeGazeImageApi()
+    {
+    }
+
+    public void Initialize()
+    {
+        if (Volatile.Read(ref _initialized) == 1) return;
+
+        CAPI.CAPI_Initialize();
+        Volatile.Write(ref _initialized, 1);
+    }
+
+    public void GetGazeImage(byte[] imageBuffer)
+    {
+        CAPI.CAPI_GetGazeImage(imageBuffer);
+    }
+}
+
+internal static class CAPI
 {
     private const string DllName = "PSVR2Toolkit.CAPI.dll";
 

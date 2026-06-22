@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baballonia.SDK", "..\Baball
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSVR2Toolkit.Baballonia", "PSVR2Toolkit.Baballonia\PSVR2Toolkit.Baballonia.csproj", "{038EB6AB-E11D-42E1-9719-B856537374A4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PSVR2Toolkit.Baballonia.SmokeTests", "tests\PSVR2Toolkit.Baballonia.SmokeTests\PSVR2Toolkit.Baballonia.SmokeTests.csproj", "{9515553F-23EC-49C6-AA91-375BD7B1E80A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,9 +25,16 @@ Global
 		{038EB6AB-E11D-42E1-9719-B856537374A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{038EB6AB-E11D-42E1-9719-B856537374A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{038EB6AB-E11D-42E1-9719-B856537374A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9515553F-23EC-49C6-AA91-375BD7B1E80A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9515553F-23EC-49C6-AA91-375BD7B1E80A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9515553F-23EC-49C6-AA91-375BD7B1E80A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9515553F-23EC-49C6-AA91-375BD7B1E80A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9515553F-23EC-49C6-AA91-375BD7B1E80A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AF63C9AC-9F4D-4EA5-8F34-06B20CBD967D}
