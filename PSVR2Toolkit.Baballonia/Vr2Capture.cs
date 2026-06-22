@@ -17,9 +17,10 @@ public sealed class Vr2Capture : Capture
     private const int IMAGE_HEADER_SIZE = 0x100;
     // The image from the buffer is BC4, there is only one channel.
     private const int IMAGE_DATA_SIZE = IMAGE_WIDTH * IMAGE_HEIGHT;
+    private const int IMAGE_BUFFER_SIZE = 0x200100;
 
     private readonly IGazeImageApi _gazeImageApi;
-    private readonly byte[] _imageBuffer = new byte[0x200100];
+    private readonly byte[] _imageBuffer = new byte[IMAGE_BUFFER_SIZE];
 
     private CancellationTokenSource? _cts;
     private Task? _captureTask;
@@ -95,9 +96,13 @@ public sealed class Vr2Capture : Capture
                 {
                     if (Stopwatch.GetTimestamp() >= nextInvalidFrameLog)
                     {
+                        var nonZeroBytes = CountNonZeroBytes(_imageBuffer, out var firstNonZeroOffset);
                         Logger.LogWarning(
-                            "Waiting for PSVR2 gaze image frame. Header={Header}.",
-                            FormatHeader(_imageBuffer));
+                            "Waiting for PSVR2 gaze image frame. Header={Header}, Data={Data}, NonZeroBytes={NonZeroBytes}, FirstNonZeroOffset={FirstNonZeroOffset}.",
+                            FormatHeader(_imageBuffer),
+                            FormatDataSample(_imageBuffer),
+                            nonZeroBytes,
+                            firstNonZeroOffset);
                         nextInvalidFrameLog = Stopwatch.GetTimestamp() + Stopwatch.Frequency;
                     }
 
@@ -145,5 +150,29 @@ public sealed class Vr2Capture : Capture
     private static string FormatHeader(byte[] buffer)
     {
         return string.Join(' ', buffer.AsSpan(0, 8).ToArray().Select(b => b.ToString("X2")));
+    }
+
+    private static string FormatDataSample(byte[] buffer)
+    {
+        return string.Join(' ', buffer.AsSpan(IMAGE_HEADER_SIZE, 8).ToArray().Select(b => b.ToString("X2")));
+    }
+
+    private static int CountNonZeroBytes(byte[] buffer, out int firstNonZeroOffset)
+    {
+        firstNonZeroOffset = -1;
+        var count = 0;
+
+        for (var i = 0; i < buffer.Length; i++)
+        {
+            if (buffer[i] == 0) continue;
+
+            count++;
+            if (firstNonZeroOffset < 0)
+            {
+                firstNonZeroOffset = i;
+            }
+        }
+
+        return count;
     }
 }
